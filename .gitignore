@@ -1,0 +1,15 @@
+# Downloaded bars and the built dataset stay local: too big, and Yahoo's terms
+# do not allow redistributing the raw series.
+data/
+
+# Python
+.venv/
+__pycache__/
+*.py[cod]
+.ipynb_checkpoints/
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/

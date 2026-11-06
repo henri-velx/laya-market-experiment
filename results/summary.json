@@ -1,0 +1,48 @@
+{
+  "tickers": [
+    "AAPL",
+    "AMZN",
+    "EEM",
+    "EFA",
+    "GLD",
+    "GOOGL",
+    "IWM",
+    "JNJ",
+    "JPM",
+    "KO",
+    "MSFT",
+    "NVDA",
+    "QQQ",
+    "SPY",
+    "TLT",
+    "TSLA",
+    "XLE",
+    "XLF",
+    "XLK",
+    "XOM"
+  ],
+  "rows": 78954,
+  "rows_per_split": {
+    "train": 55097,
+    "test": 13657,
+    "val": 9838,
+    "purged": 362
+  },
+  "first_date": "2010-12-31",
+  "last_date": "2026-09-22",
+  "class_share": {
+    "hold": 0.4169,
+    "buy": 0.3129,
+    "sell": 0.2702
+  },
+  "params": {
+    "horizon_days": 10,
+    "barrier_k": 1.0,
+    "vol_window": 20,
+    "cost_round_trip": 0.003,
+    "train_end": "2021-12-31",
+    "val_start": "2022-01-01",
+    "val_end": "2023-12-31",
+    "test_start": "2024-01-01"
+  }
+}

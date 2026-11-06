@@ -1,0 +1,7 @@
+numpy>=1.26
+pandas>=2.0
+scikit-learn>=1.3
+yfinance>=0.2
+
+# Optional, only for the Laya arm (`python run.py laya`): needs a CUDA GPU.
+# laya
