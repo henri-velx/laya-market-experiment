@@ -154,6 +154,9 @@ It writes `results/laya_val.csv`, and the report picks it up automatically.
 - **Twenty tickers, chosen in hindsight.** These are survivors and mostly US large caps, so
   absolute levels are flattered. Only relative comparisons are meaningful.
 - **Costs are a guess**: 0.30% round trip, no spread, no slippage, no market impact.
+- **Laya saw words, the baselines saw numbers.** Each day is bucketed into coarse text for
+  Laya and handed to the scikit-learn models as ten continuous features, so part of any gap
+  between them is the representation, not the model.
 - **One model, one interface, one question.** Laya may do better as a ranker than as a
   three-way classifier; this experiment cannot tell.
 - **Data comes from Yahoo** and is not redistributed here. `data/` is gitignored.
