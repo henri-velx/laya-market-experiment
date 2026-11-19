@@ -21,6 +21,10 @@ UNIVERSE = [
 
 START = "2010-01-01"
 
+# Pin the end of the download so a re-run reproduces the committed numbers instead of
+# picking up whatever the last trading day happens to be. `run.py --end` overrides it.
+END = "2026-09-22"
+
 # Decision at the close of day t, entry at the open of day t+1.
 HORIZON = 10      # at most this many trading days to wait
 K = 1.0           # barrier width = K * daily vol * sqrt(HORIZON)

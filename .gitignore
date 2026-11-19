@@ -2,6 +2,12 @@
 # do not allow redistributing the raw series.
 data/
 
+# Local secrets, in case you ever add any
+.env
+.env.*
+*.key
+*.pem
+
 # Python
 .venv/
 __pycache__/

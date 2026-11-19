@@ -19,7 +19,11 @@ def run(dataset: pd.DataFrame, last_date: str = config.VAL_END) -> pd.DataFrame:
     df = dataset[dataset["date"] <= pd.Timestamp(last_date)]
     df = df.sort_values(["date", "ticker"]).reset_index(drop=True)
     years = sorted(df["date"].dt.year.unique())
+    if not years:
+        raise SystemExit("No rows to walk forward over. Check the data and the config dates.")
     test_years = [y for y in years if y >= years[0] + MIN_TRAIN_YEARS]
+    if not test_years:
+        raise SystemExit(f"Not enough history to walk forward over: only {years} present.")
     print(f"Data {years[0]} to {years[-1]}, test years {test_years[0]} to {test_years[-1]}\n")
 
     rows, pooled = [], {}

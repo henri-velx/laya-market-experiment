@@ -357,8 +357,9 @@ def _render(wf, base, laya, summary) -> str:
     day in the block. Costs are 0.30% per round trip.</p>
     <figure>
       {_val_table(base, ({"name": "Laya, zero-shot", **laya_stats} if laya_stats else None))}
-      <figcaption>An edge of +0.32% per trade looks like a signal. It is also exactly the size of
-      a result that can disappear when you stop choosing the window.</figcaption>
+      <figcaption>An edge of {_pct(_num(best_val, "edge")) if best_val else "+0.3%"} per trade
+      looks like a signal. It is also exactly the size of a result that can disappear when you
+      stop choosing the window.</figcaption>
     </figure>
 
     <h2>The walk-forward said no</h2>

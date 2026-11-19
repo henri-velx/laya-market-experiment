@@ -19,9 +19,9 @@ experiment, the numbers, and the few pieces worth keeping.
 | | value |
 |---|---|
 | Laya, zero-shot, validation block (2022–2023) | **+0.15%** edge per buy signal |
-| Best model on the same block (gradient boosting) | **+0.31%** edge per buy signal |
+| Best model on the same block (gradient boosting) | **+0.35%** edge per buy signal |
 | Walk-forward years with a positive edge (2013–2023) | **5 of 11** |
-| Mean yearly edge over those 11 years | **−0.06%** |
+| Mean yearly edge over those 11 years | **−0.07%** |
 
 The validation block looked like a signal. The walk-forward says it was a window.
 
@@ -76,7 +76,7 @@ Validation block (train = 2010–2021, validation = 2022–2023, 9,838 name-days
 | random by class prior | 0.342 | 0.332 | 3,062 | +0.10% | −0.03% | −0.20% |
 | rule: SMA + momentum | 0.332 | 0.330 | 3,192 | +0.22% | +0.09% | −0.08% |
 | logistic regression | 0.422 | 0.406 | 3,642 | +0.45% | **+0.32%** | +0.15% |
-| gradient boosting | 0.426 | 0.407 | 3,411 | +0.44% | **+0.31%** | +0.14% |
+| gradient boosting | 0.430 | 0.411 | 3,410 | +0.49% | **+0.35%** | +0.19% |
 | Laya, zero-shot | 0.324 | 0.316 | 4,463 | +0.29% | +0.15% | −0.01% |
 
 Walk-forward, per model over eleven years:
@@ -84,7 +84,7 @@ Walk-forward, per model over eleven years:
 | model | positive years | mean yearly edge | worst year | pooled edge |
 |---|---:|---:|---:|---:|
 | logistic regression | 6 / 11 | −0.02% | −0.89% | −0.03% |
-| gradient boosting | 5 / 11 | −0.06% | −0.41% | −0.07% |
+| gradient boosting | 5 / 11 | −0.07% | −0.40% | −0.07% |
 
 Laya's own confusion matrix is in the report. Short version: it answered `buy` on 45% of days,
 and its accuracy (32.4%) is *below* always answering `hold` (40.1%). The probabilities it
@@ -120,12 +120,20 @@ python run.py all          # download, label, baselines, walk-forward, report
 ```
 
 Or one stage at a time: `download`, `label`, `baselines`, `walkforward`, `report`. Use
-`--tickers SPY QQQ IWM` and `--start 2015-01-01` to narrow it down.
+`--tickers SPY QQQ IWM`, `--start 2015-01-01` and `--end 2023-12-31` to narrow it down. The
+end date is pinned in `marketlab/config.py` (`END`), so a re-run reproduces the committed
+numbers instead of quietly picking up the latest trading day.
 
 Regenerating the report needs nothing but Python:
 
 ```bash
 python run.py report
+```
+
+The unit tests need neither data nor network:
+
+```bash
+python -m unittest discover -s tests
 ```
 
 The optional Laya arm is not part of `all`:

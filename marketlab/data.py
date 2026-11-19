@@ -10,12 +10,12 @@ from . import config
 COLUMNS = ["Open", "High", "Low", "Close", "Volume"]
 
 
-def _fetch(ticker: str, start: str, retries: int = 3) -> pd.DataFrame | None:
+def _fetch(ticker: str, start: str, end: str, retries: int = 3) -> pd.DataFrame | None:
     import yfinance as yf
 
     for attempt in range(1, retries + 1):
         try:
-            df = yf.Ticker(ticker).history(start=start, auto_adjust=True, actions=False)
+            df = yf.Ticker(ticker).history(start=start, end=end, auto_adjust=True, actions=False)
             if df is not None and not df.empty:
                 return df
         except Exception as exc:  # network or Yahoo-side problem
@@ -24,15 +24,21 @@ def _fetch(ticker: str, start: str, retries: int = 3) -> pd.DataFrame | None:
     return None
 
 
-def download(tickers=None, start: str | None = None) -> None:
-    """Write one CSV per ticker to data/raw."""
+def download(tickers=None, start: str | None = None, end: str | None = None) -> None:
+    """Write one CSV per ticker to data/raw.
+
+    `end` is inclusive here. yfinance treats its own end date as exclusive, so one day
+    is added before the call.
+    """
     tickers = tickers or config.UNIVERSE
     start = start or config.START
+    end = end or config.END
+    end_exclusive = (pd.Timestamp(end) + pd.Timedelta(days=1)).date().isoformat()
     config.RAW_DIR.mkdir(parents=True, exist_ok=True)
 
     loaded, failed = [], []
     for ticker in tickers:
-        df = _fetch(ticker, start)
+        df = _fetch(ticker, start, end_exclusive)
         if df is None:
             failed.append(ticker)
             print(f"{ticker}: no data")

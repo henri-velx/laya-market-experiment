@@ -24,6 +24,7 @@ def parse_args(argv=None):
     p.add_argument("--results-dir", help="where result files live (default: ./results)")
     p.add_argument("--tickers", nargs="+", help="override the universe, e.g. --tickers SPY QQQ")
     p.add_argument("--start", help="first date to download, e.g. 2015-01-01")
+    p.add_argument("--end", help="last date to download (default: config.END, which pins the results)")
     return p.parse_args(argv)
 
 
@@ -38,7 +39,7 @@ def main(argv=None) -> int:
     from marketlab import baselines, data, features, report, splits, walkforward
 
     if args.stage in ("download", "all"):
-        data.download(tickers=args.tickers, start=args.start)
+        data.download(tickers=args.tickers, start=args.start, end=args.end)
     if args.stage in ("label", "all"):
         labels = features.build(tickers=args.tickers)
         dataset = splits.build(labels)

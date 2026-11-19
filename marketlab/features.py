@@ -22,7 +22,12 @@ def rsi(close: pd.Series, n: int = 14) -> pd.Series:
     gain = delta.clip(lower=0).rolling(n).mean()
     loss = (-delta.clip(upper=0)).rolling(n).mean()
     rs = gain / loss.replace(0, np.nan)
-    return 100 - 100 / (1 + rs)
+    out = 100 - 100 / (1 + rs)
+    # A window with no down days is RSI 100 by definition, not undefined.
+    out = out.mask((loss == 0) & (gain > 0), 100.0)
+    # A window that did not move at all has no direction: report the neutral midpoint.
+    out = out.mask((loss == 0) & (gain == 0) & gain.notna(), 50.0)
+    return out
 
 
 def make_features(df: pd.DataFrame) -> pd.DataFrame:
@@ -37,7 +42,8 @@ def make_features(df: pd.DataFrame) -> pd.DataFrame:
     f["dist_high_252d"] = close / df["High"].rolling(252).max() - 1
     f["vs_sma50"] = close / close.rolling(50).mean() - 1
     f["vs_sma200"] = close / close.rolling(200).mean() - 1
-    f["vol_ratio"] = df["Volume"] / df["Volume"].rolling(20).mean()
+    vol_mean = df["Volume"].rolling(20).mean().replace(0, np.nan)
+    f["vol_ratio"] = df["Volume"] / vol_mean
     f["rsi_14"] = rsi(close)
     return f
 
@@ -49,7 +55,7 @@ def triple_barrier(df: pd.DataFrame, vol: np.ndarray):
     n = len(df)
     label = np.full(n, None, dtype=object)
     ret = np.full(n, np.nan)
-    t1 = np.full(n, np.datetime64("NaT"), dtype="datetime64[ns]")
+    t1 = np.full(n, np.datetime64("NaT", "ns"), dtype="datetime64[ns]")
 
     for i in range(n - config.HORIZON):  # needs days i+1 ... i+HORIZON
         v = vol[i]
@@ -96,6 +102,8 @@ def build(tickers=None) -> pd.DataFrame:
         feats["label"], feats["fwd_ret"], feats["t1"] = label, ret, t1
         feats["close"] = df["Close"]
         feats["ticker"] = ticker
+        # infinity is not a number a scaler can handle, and dropna() does not remove it
+        feats = feats.replace([np.inf, -np.inf], np.nan)
         feats = feats.dropna(subset=config.FEATURES + ["label"])
         parts.append(feats.reset_index())
         print(f"{ticker}: {len(feats)} labelled days")

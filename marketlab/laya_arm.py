@@ -37,18 +37,20 @@ def run(batch_size: int = 64) -> pd.DataFrame:
             "Install it with `pip install laya`, or run the other stages instead."
         ) from exc
 
-    warnings.filterwarnings("ignore", category=RuntimeWarning)  # known temperature notice
-
     dataset = pd.read_csv(config.BUILD_DIR / "dataset.csv", parse_dates=["date", "t1"])
     val = dataset[dataset.split == "val"].reset_index(drop=True)
-    states = [build_state(r) for r in val.to_dict("records")]
+    records = val.to_dict("records")
+    states = [build_state(r) for r in records]
     print(f"{len(states)} validation rows")
 
-    agent = laya.load("convaiinnovations/laya")
-    results = agent.predict_batch(states, QUESTIONS, batch_size=batch_size)
+    with warnings.catch_warnings():
+        # The shipped checkpoint logs a known temperature notice; it does not move answers.
+        warnings.filterwarnings("ignore", message=".*invalid temperatures.*", category=RuntimeWarning)
+        agent = laya.load("convaiinnovations/laya")
+        results = agent.predict_batch(states, QUESTIONS, batch_size=batch_size)
 
     rows = []
-    for rec, res in zip(val.to_dict("records"), results):
+    for rec, res in zip(records, results):
         answer = res["answers"]["action"]
         probs = answer["probabilities"]
         rows.append({
@@ -65,7 +67,12 @@ def run(batch_size: int = 64) -> pd.DataFrame:
     print("\nPredicted classes:")
     print(out["pred"].value_counts(normalize=True).round(3).to_string())
 
-    table = pd.read_csv(config.RESULTS_DIR / "baselines_val.csv").to_dict("records")
+    comparison = config.RESULTS_DIR / "baselines_val.csv"
+    if not comparison.exists():
+        print("\nNo baselines_val.csv yet: run `python run.py baselines` for the comparison table.")
+        return out
+
+    table = pd.read_csv(comparison).to_dict("records")
     table.append(metrics.evaluate("Laya, zero-shot", out["label"], out["pred"], out["fwd_ret"]))
     print("\nComparison on the validation block:\n")
     metrics.print_table(table)

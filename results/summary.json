@@ -21,10 +21,10 @@
     "XLK",
     "XOM"
   ],
-  "rows": 78954,
+  "rows": 78958,
   "rows_per_split": {
-    "train": 55097,
-    "test": 13657,
+    "train": 55098,
+    "test": 13660,
     "val": 9838,
     "purged": 362
   },
