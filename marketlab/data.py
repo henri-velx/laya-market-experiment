@@ -20,7 +20,8 @@ def _fetch(ticker: str, start: str, end: str, retries: int = 3) -> pd.DataFrame 
                 return df
         except Exception as exc:  # network or Yahoo-side problem
             print(f"  {ticker}: attempt {attempt} failed: {exc}")
-        time.sleep(2 * attempt)
+        if attempt < retries:  # no point sleeping after the last attempt
+            time.sleep(2 * attempt)
     return None
 
 

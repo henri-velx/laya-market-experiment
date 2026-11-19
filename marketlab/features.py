@@ -62,22 +62,30 @@ def triple_barrier(df: pd.DataFrame, vol: np.ndarray):
         if not np.isfinite(v) or v <= 0:
             continue
         entry = o[i + 1]
+        if not np.isfinite(entry) or entry <= 0:  # a broken print, not a decision day
+            continue
         width = config.K * v * np.sqrt(config.HORIZON)
         up, lo = entry * (1 + width), entry * (1 - width)
 
         lab, exit_px, j_end = "hold", c[i + config.HORIZON], i + config.HORIZON
         for j in range(i + 1, i + config.HORIZON + 1):
+            # A gap through a barrier fills at the open, before that day can trade anywhere
+            # else; the far barrier is unreachable once the open is beyond the near one.
+            if o[j] >= up:
+                lab, exit_px, j_end = "buy", o[j], j
+                break
+            if o[j] <= lo:
+                lab, exit_px, j_end = "sell", o[j], j
+                break
             hit_up, hit_lo = h[j] >= up, l[j] <= lo
-            if hit_up and hit_lo:  # both on the same daily bar: not separable
+            if hit_up and hit_lo:  # both barriers inside one bar: not separable, call it hold
                 lab, exit_px, j_end = "hold", c[j], j
                 break
             if hit_up:
-                lab, j_end = "buy", j
-                exit_px = max(up, o[j]) if o[j] >= up else up  # gap above the barrier
+                lab, exit_px, j_end = "buy", up, j
                 break
             if hit_lo:
-                lab, j_end = "sell", j
-                exit_px = min(lo, o[j]) if o[j] <= lo else lo
+                lab, exit_px, j_end = "sell", lo, j
                 break
         label[i] = lab
         ret[i] = exit_px / entry - 1

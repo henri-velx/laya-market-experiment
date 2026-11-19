@@ -69,6 +69,29 @@ class TripleBarrierTest(unittest.TestCase):
         label, _, _ = triple_barrier(_bars([100.0] * 15), np.full(15, 0.02))
         self.assertIsNone(label[-1])
 
+    def test_gap_above_the_barrier_fills_at_the_open(self):
+        closes = [100.0] * 15
+        opens, highs, lows = list(closes), [100.1] * 15, [99.9] * 15
+        opens[2], highs[2], lows[2] = 107.0, 108.0, 95.0  # opens over the top, then trades down
+        df = pd.DataFrame(
+            {"Open": opens, "High": highs, "Low": lows, "Close": closes, "Volume": [1_000_000] * 15},
+            index=pd.bdate_range("2020-01-01", periods=15),
+        )
+        label, ret, _ = triple_barrier(df, np.full(15, 0.002))
+        self.assertEqual(label[0], "buy")
+        self.assertAlmostEqual(ret[0], 0.07)  # 107 / 100 - 1, not the barrier price
+
+    def test_broken_open_is_not_a_decision_day(self):
+        closes = [100.0] * 15
+        opens = list(closes)
+        opens[5] = 0.0
+        df = pd.DataFrame(
+            {"Open": opens, "High": [100.1] * 15, "Low": [99.9] * 15, "Close": closes, "Volume": [1_000_000] * 15},
+            index=pd.bdate_range("2020-01-01", periods=15),
+        )
+        label, _, _ = triple_barrier(df, np.full(15, 0.002))
+        self.assertIsNone(label[4])
+
 
 class SplitTest(unittest.TestCase):
     def test_blocks_and_purging(self):
