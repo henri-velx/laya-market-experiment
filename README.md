@@ -42,8 +42,8 @@ The validation block looked like a signal. The walk-forward says it was a window
 6. **Ask Laya** the same question in words, zero-shot, and score its answers with the same
    code as everything else.
 
-The test block from 2024 on is never scored in this repo. The bars are downloaded; the
-numbers stop at 2023.
+The test block from 2024 on is never scored by the study itself. The bars are downloaded and
+the numbers stop at 2023 — with one exception, a later follow-up below that scores it once.
 
 ## What Laya is
 
@@ -89,6 +89,29 @@ Walk-forward, per model over eleven years:
 Laya's own confusion matrix is in the report. Short version: it answered `buy` on 45% of days,
 and its accuracy (32.4%) is *below* always answering `hold` (40.1%). The probabilities it
 returns are clean and ordered and carry no usable ranking.
+
+## One follow-up that does move it
+
+Not part of the study above, and not a promise. A single later probe, checked once on the
+block the study never scored: same data and labels, but rank days by a predicted forward
+return instead of taking an argmax, and give the model 23 features (multi-horizon returns,
+ATR, MACD histogram, Bollinger %b, SPY-relative and cross-sectional returns):
+
+| gradient-boosting regressor on forward return, trained on data before 2024 | return per signal | edge | net of cost |
+|---|---:|---:|---:|
+| top 20% of test days (2,732 signals) | +1.28% | **+0.73%** | +0.98% |
+| top 10% (1,366 signals) | +1.80% | +1.24% | +1.50% |
+
+Per year: 2024 +0.89%, 2025 +0.88%, 2026 (to September) +0.35% edge. Positive on 15 of 17
+tickers with at least 40 signals. [`experiments/verify_enriched.py`](experiments/verify_enriched.py)
+rebuilds its own features from the raw bars and scores the block once.
+
+Read that carefully before believing it. It is one model and one selection rule, picked after
+looking at validation — exactly the freedom that inflates a number. It is not a portfolio: no
+sizing, no concurrent-position limit, overlapping ten-day holds. The test block is 2024–2026
+and mostly a rising market. The walk-forward version of this idea is *not* reproduced here.
+And the repo's original claim stands unchanged: the small language-facing model, as specified,
+does not beat the baselines.
 
 ## The part worth stealing
 
